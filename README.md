@@ -88,3 +88,7 @@ Directions APIを使用予定
 ●デイリーミッション (sidekiq-cron)
 
 ●デイリースタンプ機能 (activerecord-session_store)
+
+# ER図
+
+![alt text](<ER図   image.PNG>)
