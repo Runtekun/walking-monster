@@ -8,14 +8,8 @@ class PostImageUploader < CarrierWave::Uploader::Base
   storage :file
   # storage :fog
 
-  # Override the directory where uploaded files will be stored.
-  # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-  end
-
-  def default_url
-    "sample.jpg"
   end
 
   def extension_allowlist
@@ -23,7 +17,7 @@ class PostImageUploader < CarrierWave::Uploader::Base
   end
 
   def default_url(*args)
-    ActionController::Base.helpers.asset_path("no_image.png")
+    ActionController::Base.helpers.asset_path("post_placeholder.png")
   end
 
   # Process files as they are uploaded:
