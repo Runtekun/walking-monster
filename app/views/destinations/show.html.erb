@@ -47,25 +47,20 @@
       </div>
 
       <div class="mt-6 flex flex-wrap justify-between gap-3">
-        <%= link_to "🔧 編集", edit_destination_path(@destination), class: "flex-1 min-w-[100px] text-center px-4 py-2 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-600 transition" %>
+        <% if @destination.walked_at.nil? && @destination.latitude.present? %>
+          <%= link_to "🚶 続きを歩く", walking_destination_path(@destination),
+              class: "flex-1 min-w-[100px] text-center px-4 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition" %>
+        <% elsif @destination.walked_at.present? %>
+          <span class="flex-1 min-w-[100px] text-center px-4 py-2 bg-gray-200 text-gray-500 font-bold rounded-lg">✅ 完了済み</span>
+        <% end %>
 
         <%= link_to "🗑️ 削除", destination_path(@destination),
-            method: :delete,
             data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
             class: "flex-1 min-w-[100px] text-center px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition" %>
 
-        <%= link_to "🔙 戻る", destinations_path, class: "flex-1 min-w-[100px] text-center px-4 py-2 bg-gray-300 text-gray-800 font-bold rounded-lg hover:bg-gray-400 transition" %>
+        <%= link_to "🔙 戻る", destinations_path,
+            class: "flex-1 min-w-[100px] text-center px-4 py-2 bg-gray-300 text-gray-800 font-bold rounded-lg hover:bg-gray-400 transition" %>
       </div>
-
-      <% if @destination.walked_at.nil? %>
-        <div class="mt-6">
-          <%= button_to "🚶 冒険完了として記録", complete_walk_destination_path(@destination),
-              data: { turbo_method: :post, confirm: 'この経路を完了として記録しますか？' },
-              class: "w-full px-4 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition text-center text-base" %>
-        </div>
-      <% else %>
-        <p class="text-center text-gray-600 mt-6 italic">この冒険はすでに完了しています。</p>
-      <% end %>
 
     </div>
   </div>
