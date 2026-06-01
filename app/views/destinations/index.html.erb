@@ -113,7 +113,7 @@
 </div>
 
 <script>
-  let map, currentMarker, destinationMarker, myLat, myLng
+  let map, currentMarker, destinationMarker, myLat, myLng, watchId
 
   document.addEventListener("turbo:load", () => {
     if (!document.getElementById("map")) return
@@ -121,6 +121,7 @@
   })
 
   document.addEventListener("turbo:before-cache", () => {
+    if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null }
     if (map) { map.remove(); map = null }
   })
 
@@ -131,25 +132,31 @@
     }).addTo(map)
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      // walkingと同じwatchPositionで継続的に現在地を追跡
+      watchId = navigator.geolocation.watchPosition(
         (pos) => {
           const lat = pos.coords.latitude
           const lng = pos.coords.longitude
           myLat = lat; myLng = lng
-          map.setView([lat, lng], 16)
-          // ⚔️ 現在地（walkingと同じスタイル）
-          currentMarker = L.marker([lat, lng], {
-            icon: L.divIcon({
-              className: '',
-              html: '<div class="hero-glow">⚔️</div>',
-              iconSize: [40, 40],
-              iconAnchor: [20, 20]
-            })
-          }).addTo(map)
+          // 初回のみ地図を現在地に移動
+          if (!currentMarker) {
+            map.setView([lat, lng], 16)
+            currentMarker = L.marker([lat, lng], {
+              icon: L.divIcon({
+                className: '',
+                html: '<div class="hero-glow">⚔️</div>',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+              })
+            }).addTo(map)
+          } else {
+            currentMarker.setLatLng([lat, lng])
+          }
         },
         () => {
           document.getElementById("no-gps-warning").classList.remove("hidden")
-        }
+        },
+        { enableHighAccuracy: true, maximumAge: 5000 }
       )
     } else {
       document.getElementById("no-gps-warning").classList.remove("hidden")
