@@ -126,8 +126,8 @@
 
   function initLeafletMap() {
     map = L.map("map").setView([35.681, 139.767], 14)
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-      attribution: '© OpenStreetMap © CartoDB'
+    L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
     }).addTo(map)
 
     if (navigator.geolocation) {

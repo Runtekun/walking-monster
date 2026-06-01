@@ -36,9 +36,9 @@ export default class extends Controller {
     const destLng = this.destinationLngValue
 
     this.map = L.map("walking-map").setView([destLat, destLng], 15)
-    // CartoDB Voyager: 明るくカラフルで道路が見やすい
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-      attribution: '© OpenStreetMap © CartoDB'
+    // 国土地理院標準地図: 日本語表示・無料・公式
+    L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
     }).addTo(this.map)
 
     // 目的地マーカー（城アイコン）
