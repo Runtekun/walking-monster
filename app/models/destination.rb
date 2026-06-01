@@ -8,7 +8,8 @@ class Destination < ApplicationRecord
   validates :start, presence: true
   validates :end, presence: true
   # distance/durationはGPS歩行完了後に設定されるため必須としない
-  validate :walkable_distance
+  # walked_atがない（歩行前の目的地設定時）のみ距離上限を検証
+  validate :walkable_distance, unless: -> { walked_at.present? }
 
   # 歩行データ登録後、リアルタイムランキング更新を実行
   after_create_commit :refresh_user_rankings_realtime
