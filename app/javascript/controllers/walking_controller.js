@@ -52,6 +52,20 @@ export default class extends Controller {
       .setContent('<div style="font-size:38px;text-align:center;line-height:1.1">🏰<br><span style="font-size:11px;font-weight:bold;color:#ffd700">目的地</span></div>')
       .openOn(this.map)
 
+    // 現在地ボタン（L.Control で bottomleft に配置）
+    const LocateControl = L.Control.extend({
+      options: { position: 'bottomleft' },
+      onAdd: () => {
+        const btn = L.DomUtil.create('button', 'locate-control-btn')
+        btn.innerHTML = '📍'
+        btn.title = '現在地に移動'
+        L.DomEvent.on(btn, 'click', L.DomEvent.stop)
+        L.DomEvent.on(btn, 'click', () => this.locateMe())
+        return btn
+      }
+    })
+    new LocateControl().addTo(this.map)
+
     // 目的地の50m範囲サークル
     L.circle([destLat, destLng], {
       radius: 50,
