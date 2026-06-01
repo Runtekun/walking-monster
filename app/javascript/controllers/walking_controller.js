@@ -36,17 +36,17 @@ export default class extends Controller {
     const destLng = this.destinationLngValue
 
     this.map = L.map("walking-map").setView([destLat, destLng], 15)
-    // 国土地理院標準地図: 日本語表示・無料・公式
-    L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
-      attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+    // OpenStreetMap標準: 日本語表示・見やすい
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map)
 
-    // 目的地マーカー（洞窟アイコン）
+    // 目的地マーカー（洞窟アイコン）- 白ボックスを消すCSS付き
     const goalIcon = L.divIcon({
-      className: '',
-      html: '<div style="font-size:32px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7))">🕳️</div>',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40]
+      className: 'custom-map-icon',
+      html: '<div style="font-size:36px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))">🕳️</div>',
+      iconSize: [44, 44],
+      iconAnchor: [22, 44]
     })
     L.marker([destLat, destLng], { icon: goalIcon })
       .addTo(this.map)
@@ -86,10 +86,10 @@ export default class extends Controller {
       this.currentMarker.setLatLng([lat, lng])
     } else {
       const heroIcon = L.divIcon({
-        className: '',
-        html: '<div style="font-size:26px;filter:drop-shadow(0 0 6px rgba(59,130,246,0.8))">⚔️</div>',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        className: 'custom-map-icon',
+        html: '<div style="font-size:28px;line-height:1;filter:drop-shadow(0 0 8px rgba(59,130,246,0.9))">⚔️</div>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
       })
       this.currentMarker = L.marker([lat, lng], { icon: heroIcon })
         .addTo(this.map)
