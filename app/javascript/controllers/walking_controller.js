@@ -183,6 +183,11 @@ export default class extends Controller {
       })
   }
 
+  locateMe() {
+    if (this.currentLat === null || !this.map) return
+    this.map.setView([this.currentLat, this.currentLng], 16)
+  }
+
   showCompletion(data) {
     if (this.watchId) navigator.geolocation.clearWatch(this.watchId)
 

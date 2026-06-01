@@ -58,8 +58,14 @@
       </div>
 
       <!-- Leaflet地図 -->
-      <div class="rounded-lg overflow-hidden border-2 border-yellow-300 shadow-xl mb-4">
+      <div class="rounded-lg overflow-hidden border-2 border-yellow-300 shadow-xl mb-4 relative">
         <div id="map" class="w-full h-[350px]"></div>
+        <!-- 現在地に戻るボタン（左下） -->
+        <button onclick="locateMe()"
+                class="absolute bottom-3 left-3 z-[1000] w-10 h-10 bg-black bg-opacity-65 backdrop-blur-sm rounded-full text-lg flex items-center justify-center shadow-lg hover:bg-opacity-85 transition border border-white border-opacity-20"
+                title="現在地に移動">
+          📍
+        </button>
       </div>
 
       <!-- 目的地情報 -->
@@ -113,7 +119,7 @@
 </div>
 
 <script>
-  let map, currentMarker, destinationMarker
+  let map, currentMarker, destinationMarker, myLat, myLng
 
   document.addEventListener("turbo:load", () => {
     if (!document.getElementById("map")) return
@@ -135,6 +141,7 @@
         (pos) => {
           const lat = pos.coords.latitude
           const lng = pos.coords.longitude
+          myLat = lat; myLng = lng
           map.setView([lat, lng], 16)
           // ⚔️ 現在地（walkingと同じスタイル）
           currentMarker = L.marker([lat, lng], {
@@ -208,6 +215,11 @@
         setDestinationMarker(parseFloat(lat), parseFloat(lon))
       })
       .catch(() => alert("住所の検索に失敗しました"))
+  }
+
+  function locateMe() {
+    if (myLat === undefined) return
+    map.setView([myLat, myLng], 16)
   }
 
   function enableDepartureButton() {
