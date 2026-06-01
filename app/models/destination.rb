@@ -1,16 +1,13 @@
 class Destination < ApplicationRecord
-  # 住所から緯度・経度を自動算出
   geocoded_by :address
-  after_validation :geocode
+  # latitude/longitudeが未設定の場合のみgeocodeを実行（GPS設定時はスキップ）
+  after_validation :geocode, if: -> { latitude.nil? || longitude.nil? }
 
-  # 関連ユーザー（必須）
   belongs_to :user
 
-  # バリデーション（データ入力チェック）
   validates :start, presence: true
   validates :end, presence: true
-  validates :distance, presence: true
-  validates :duration, presence: true
+  # distance/durationはGPS歩行完了後に設定されるため必須としない
   validate :walkable_distance
 
   # 歩行データ登録後、リアルタイムランキング更新を実行
