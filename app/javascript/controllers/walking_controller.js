@@ -57,9 +57,9 @@ export default class extends Controller {
       radius: 50,
       color: '#f59e0b',
       fillColor: '#fbbf24',
-      fillOpacity: 0.1,
-      weight: 2,
-      dashArray: '6, 4'
+      fillOpacity: 0.08,
+      weight: 1,
+      dashArray: '5, 5'
     }).addTo(this.map)
   }
 
