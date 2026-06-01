@@ -80,18 +80,20 @@ export default class extends Controller {
     const lat = position.coords.latitude
     const lng = position.coords.longitude
 
-    // 現在地マーカー（⚔️ 青グロー）
+    // 現在地マーカー（🏰と同じpopup方式で確実に表示）
     if (this.currentMarker) {
       this.currentMarker.setLatLng([lat, lng])
     } else {
-      this.currentMarker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          className: '',
-          html: '<div class="hero-glow">⚔️</div>',
-          iconSize: [40, 40],
-          iconAnchor: [20, 20]
-        })
-      }).addTo(this.map)
+      this.currentMarker = L.popup({
+        closeButton: false,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'hero-popup',
+        offset: [0, 10]
+      })
+        .setLatLng([lat, lng])
+        .setContent('<div class="hero-glow" style="font-size:28px;text-align:center;line-height:1.2">⚔️</div>')
+      this.currentMarker.addTo(this.map)
     }
     this.map.panTo([lat, lng])
 

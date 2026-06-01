@@ -27,6 +27,20 @@
         transition: background 0.15s;
       }
       .locate-control-btn:hover { background: #f4f4f4; }
+      /* ⚔️ 現在地popup（🏰と同じpopup方式） */
+      .hero-popup .leaflet-popup-content-wrapper {
+        background: rgba(10, 20, 50, 0.82);
+        border: 2px solid #60a5fa;
+        border-radius: 12px;
+        box-shadow: 0 0 14px rgba(96,165,250,0.7), 0 0 28px rgba(96,165,250,0.3);
+        color: white;
+        animation: hero-box-pulse 2s ease-in-out infinite;
+      }
+      .hero-popup .leaflet-popup-tip { background: rgba(10,20,50,0.82); }
+      @keyframes hero-box-pulse {
+        0%,100% { box-shadow: 0 0 14px rgba(96,165,250,0.7), 0 0 28px rgba(96,165,250,0.3); }
+        50%      { box-shadow: 0 0 20px rgba(96,165,250,0.9), 0 0 40px rgba(96,165,250,0.5); }
+      }
       /* ⚔️ 青グロー（現在地） */
       .hero-glow {
         font-size: 28px;
