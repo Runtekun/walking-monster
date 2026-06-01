@@ -41,17 +41,16 @@ export default class extends Controller {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map)
 
-    // 目的地マーカー（洞窟アイコン）- 白ボックスを消すCSS付き
-    const goalIcon = L.divIcon({
-      className: 'custom-map-icon',
-      html: '<div style="font-size:36px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6))">🕳️</div>',
-      iconSize: [44, 44],
-      iconAnchor: [22, 44]
+    // 目的地マーカー（洞窟）: popupを常時表示して確実に絵文字を出す
+    L.popup({
+      closeButton: false,
+      autoClose: false,
+      closeOnClick: false,
+      className: 'cave-popup'
     })
-    L.marker([destLat, destLng], { icon: goalIcon })
-      .addTo(this.map)
-      .bindPopup("🕳️ 目的地")
-      .openPopup()
+      .setLatLng([destLat, destLng])
+      .setContent('<div style="font-size:40px;text-align:center;line-height:1.1">🕳️<br><span style="font-size:11px;color:#555;font-weight:bold">目的地</span></div>')
+      .openOn(this.map)
 
     // 目的地の50m範囲サークル
     L.circle([destLat, destLng], {
@@ -81,19 +80,24 @@ export default class extends Controller {
     const lat = position.coords.latitude
     const lng = position.coords.longitude
 
-    // 現在地マーカー更新（剣士アイコン）
+    // 現在地マーカー更新（⚔️ circleMarker + 絵文字ラベル）
     if (this.currentMarker) {
       this.currentMarker.setLatLng([lat, lng])
+      if (this.heroLabel) this.heroLabel.setLatLng([lat, lng])
     } else {
-      const heroIcon = L.divIcon({
-        className: 'custom-map-icon',
-        html: '<div style="font-size:28px;line-height:1;filter:drop-shadow(0 0 8px rgba(59,130,246,0.9))">⚔️</div>',
-        iconSize: [36, 36],
-        iconAnchor: [18, 18]
-      })
-      this.currentMarker = L.marker([lat, lng], { icon: heroIcon })
-        .addTo(this.map)
-        .bindPopup("⚔️ 現在地")
+      // 青い円で現在地を示す
+      this.currentMarker = L.circleMarker([lat, lng], {
+        radius: 10, color: '#3b82f6', fillColor: '#3b82f6',
+        fillOpacity: 0.9, weight: 3
+      }).addTo(this.map)
+      // 上に⚔️ラベル
+      this.heroLabel = L.marker([lat, lng], {
+        icon: L.divIcon({
+          className: '',
+          html: '<div style="font-size:20px;margin-top:-28px;margin-left:-10px;pointer-events:none">⚔️</div>',
+          iconSize: [0, 0]
+        })
+      }).addTo(this.map)
     }
     this.map.panTo([lat, lng])
 
