@@ -41,15 +41,15 @@ export default class extends Controller {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map)
 
-    // 目的地マーカー（洞窟）: popupを常時表示して確実に絵文字を出す
+    // 目的地マーカー（🏰 ゴールド光）
     L.popup({
       closeButton: false,
       autoClose: false,
       closeOnClick: false,
-      className: 'cave-popup'
+      className: 'goal-popup'
     })
       .setLatLng([destLat, destLng])
-      .setContent('<div style="font-size:40px;text-align:center;line-height:1.1">🕳️<br><span style="font-size:11px;color:#555;font-weight:bold">目的地</span></div>')
+      .setContent('<div style="font-size:38px;text-align:center;line-height:1.1">🏰<br><span style="font-size:11px;font-weight:bold;color:#ffd700">目的地</span></div>')
       .openOn(this.map)
 
     // 目的地の50m範囲サークル
@@ -80,22 +80,16 @@ export default class extends Controller {
     const lat = position.coords.latitude
     const lng = position.coords.longitude
 
-    // 現在地マーカー更新（⚔️ circleMarker + 絵文字ラベル）
+    // 現在地マーカー（⚔️ 青グロー）
     if (this.currentMarker) {
       this.currentMarker.setLatLng([lat, lng])
-      if (this.heroLabel) this.heroLabel.setLatLng([lat, lng])
     } else {
-      // 青い円で現在地を示す
-      this.currentMarker = L.circleMarker([lat, lng], {
-        radius: 10, color: '#3b82f6', fillColor: '#3b82f6',
-        fillOpacity: 0.9, weight: 3
-      }).addTo(this.map)
-      // 上に⚔️ラベル
-      this.heroLabel = L.marker([lat, lng], {
+      this.currentMarker = L.marker([lat, lng], {
         icon: L.divIcon({
           className: '',
-          html: '<div style="font-size:20px;margin-top:-28px;margin-left:-10px;pointer-events:none">⚔️</div>',
-          iconSize: [0, 0]
+          html: '<div class="hero-glow">⚔️</div>',
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
         })
       }).addTo(this.map)
     }
