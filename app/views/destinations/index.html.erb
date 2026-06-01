@@ -136,9 +136,15 @@
           const lat = pos.coords.latitude
           const lng = pos.coords.longitude
           map.setView([lat, lng], 16)
-          currentMarker = L.circleMarker([lat, lng], {
-            radius: 10, color: "#4285F4", fillColor: "#4285F4", fillOpacity: 0.8
-          }).addTo(map).bindPopup("📍 現在地").openPopup()
+          // ⚔️ 現在地（walkingと同じスタイル）
+          currentMarker = L.marker([lat, lng], {
+            icon: L.divIcon({
+              className: '',
+              html: '<div class="hero-glow">⚔️</div>',
+              iconSize: [40, 40],
+              iconAnchor: [20, 20]
+            })
+          }).addTo(map)
         },
         () => {
           document.getElementById("no-gps-warning").classList.remove("hidden")
@@ -153,7 +159,16 @@
 
   function setDestinationMarker(lat, lng) {
     if (destinationMarker) map.removeLayer(destinationMarker)
-    destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup("🏁 目的地").openPopup()
+    // 🏰 目的地（walkingと同じゴールドglow popup）
+    destinationMarker = L.popup({
+      closeButton: false,
+      autoClose: false,
+      closeOnClick: false,
+      className: 'goal-popup'
+    })
+      .setLatLng([lat, lng])
+      .setContent('<div style="font-size:38px;text-align:center;line-height:1.1">🏰<br><span style="font-size:11px;font-weight:bold;color:#ffd700">目的地</span></div>')
+      .openOn(map)
 
     document.getElementById("hidden_lat").value = lat
     document.getElementById("hidden_lng").value = lng
