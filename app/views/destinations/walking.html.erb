@@ -68,6 +68,12 @@
     </div>
   </div>
 
+  <!-- 左下：現在地ボタン -->
+  <button data-action="click->walking#locateMe"
+          class="locate-control-btn"
+          style="position:absolute; bottom:24px; left:10px; z-index:1000;"
+          title="現在地に移動">📍</button>
+
   <!-- 左上：戻るボタン -->
   <div class="absolute top-4 left-4 z-[1000]">
     <%= link_to destinations_path,
