@@ -41,16 +41,16 @@ export default class extends Controller {
       attribution: '© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
     }).addTo(this.map)
 
-    // 目的地マーカー（城アイコン）
+    // 目的地マーカー（洞窟アイコン）
     const goalIcon = L.divIcon({
       className: '',
-      html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">🏰</div>',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32]
+      html: '<div style="font-size:32px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7))">🕳️</div>',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40]
     })
     L.marker([destLat, destLng], { icon: goalIcon })
       .addTo(this.map)
-      .bindPopup("🏰 目的地")
+      .bindPopup("🕳️ 目的地")
       .openPopup()
 
     // 目的地の50m範囲サークル
