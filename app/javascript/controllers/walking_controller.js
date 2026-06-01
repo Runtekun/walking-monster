@@ -36,15 +36,32 @@ export default class extends Controller {
     const destLng = this.destinationLngValue
 
     this.map = L.map("walking-map").setView([destLat, destLng], 15)
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '© OpenStreetMap'
+    // CartoDB Voyager: 明るくカラフルで道路が見やすい
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      attribution: '© OpenStreetMap © CartoDB'
     }).addTo(this.map)
 
-    // 目的地マーカー
-    L.marker([destLat, destLng])
+    // 目的地マーカー（城アイコン）
+    const goalIcon = L.divIcon({
+      className: '',
+      html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">🏰</div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    })
+    L.marker([destLat, destLng], { icon: goalIcon })
       .addTo(this.map)
-      .bindPopup("🏁 目的地")
+      .bindPopup("🏰 目的地")
       .openPopup()
+
+    // 目的地の50m範囲サークル
+    L.circle([destLat, destLng], {
+      radius: 50,
+      color: '#f59e0b',
+      fillColor: '#fbbf24',
+      fillOpacity: 0.1,
+      weight: 2,
+      dashArray: '6, 4'
+    }).addTo(this.map)
   }
 
   startTracking() {
@@ -64,13 +81,19 @@ export default class extends Controller {
     const lat = position.coords.latitude
     const lng = position.coords.longitude
 
-    // 現在地マーカー更新
+    // 現在地マーカー更新（剣士アイコン）
     if (this.currentMarker) {
       this.currentMarker.setLatLng([lat, lng])
     } else {
-      this.currentMarker = L.circleMarker([lat, lng], {
-        radius: 10, color: "#4285F4", fillColor: "#4285F4", fillOpacity: 0.8
-      }).addTo(this.map).bindPopup("📍 現在地")
+      const heroIcon = L.divIcon({
+        className: '',
+        html: '<div style="font-size:26px;filter:drop-shadow(0 0 6px rgba(59,130,246,0.8))">⚔️</div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      })
+      this.currentMarker = L.marker([lat, lng], { icon: heroIcon })
+        .addTo(this.map)
+        .bindPopup("⚔️ 現在地")
     }
     this.map.panTo([lat, lng])
 
