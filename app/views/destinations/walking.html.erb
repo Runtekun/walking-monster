@@ -1,0 +1,69 @@
+<div class="w-full min-h-screen bg-[#1a1a2e] flex flex-col"
+     data-controller="walking"
+     data-walking-destination-lat-value="<%= @destination.latitude %>"
+     data-walking-destination-lng-value="<%= @destination.longitude %>"
+     data-walking-complete-walk-url-value="<%= complete_walk_destination_path(@destination) %>">
+
+  <!-- 上半分：モンスター＋EXPバー＋残り距離 -->
+  <div class="bg-[#0f3460] px-6 py-5 border-b border-[#00ff8833] shrink-0">
+    <% user_monster = current_user.user_monster %>
+    <% species = user_monster&.monster_species %>
+
+    <div class="flex items-center gap-4 max-w-lg mx-auto">
+      <!-- モンスター画像 -->
+      <div class="shrink-0">
+        <% image = species&.image_for_level(user_monster&.level || 1) %>
+        <% if image&.present? %>
+          <%= image_tag image.url, class: "w-16 h-16 object-contain drop-shadow-lg" %>
+        <% else %>
+          <div class="w-16 h-16 flex items-center justify-center text-4xl">🐲</div>
+        <% end %>
+      </div>
+
+      <!-- EXPバー -->
+      <div class="flex-1">
+        <p class="text-[#00ff88] font-bold text-sm">
+          <%= species&.name_for_level(user_monster&.level || 1) %> Lv.<%= user_monster&.level %>
+        </p>
+        <div class="bg-gray-700 rounded-full h-3 mt-1 overflow-hidden">
+          <% exp_percent = user_monster ? [((user_monster.experience.to_f / [user_monster.next_level_experience, 1].max) * 100).floor, 100].min : 0 %>
+          <div class="h-full rounded-full bg-gradient-to-r from-orange-500 to-yellow-400"
+               style="width: <%= exp_percent %>%"></div>
+        </div>
+        <p class="text-gray-400 text-xs mt-1">
+          EXP <%= user_monster&.experience %> / <%= user_monster&.next_level_experience %>
+        </p>
+      </div>
+    </div>
+
+    <!-- 残り距離 -->
+    <div class="text-center mt-5">
+      <p class="text-[#00ff88] text-sm font-bold tracking-widest">目的地まで</p>
+      <p class="text-white text-5xl font-bold mt-1" data-walking-target="distance">計算中...</p>
+      <p class="text-gray-400 text-xs mt-2 truncate px-4"><%= @destination.end %></p>
+    </div>
+
+    <!-- 100m接近アラート -->
+    <div data-walking-target="nearbyAlert"
+         class="hidden mt-4 bg-yellow-400 text-black font-bold text-center py-2 px-4 rounded-lg animate-pulse text-sm">
+      🔥 目的地が近い！あと少し！
+    </div>
+  </div>
+
+  <!-- 下半分：Leaflet地図 -->
+  <div id="walking-map" class="flex-1 w-full" style="min-height: 300px;"></div>
+
+  <!-- 完了オーバーレイ -->
+  <div id="completion-overlay"
+       class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
+    <div class="bg-[#0f3460] border-2 border-[#00ff88] rounded-2xl p-8 text-center max-w-sm mx-4 shadow-2xl">
+      <div class="text-6xl mb-4">🎉</div>
+      <h2 class="text-[#00ff88] text-2xl font-bold mb-2">冒険完了！</h2>
+      <p class="text-yellow-400 text-3xl font-bold mb-2" id="completion-exp"></p>
+      <p class="text-white text-sm mb-6" id="completion-message"></p>
+      <%= link_to "ダッシュボードへ", authenticated_root_path,
+          class: "block w-full py-3 bg-[#00ff88] text-black font-bold rounded-lg hover:bg-green-400 transition" %>
+    </div>
+  </div>
+
+</div>
