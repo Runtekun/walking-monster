@@ -1,5 +1,5 @@
 class DestinationsController < ApplicationController
-  before_action :set_destination, only: [ :show, :edit, :update, :destroy, :complete_walk ]
+  before_action :set_destination, only: [ :show, :destroy, :complete_walk, :walking ]
 
   def index
     @destinations = current_user.destinations
@@ -10,7 +10,7 @@ class DestinationsController < ApplicationController
   def create
     @destination = current_user.destinations.new(destination_params)
     if @destination.save
-      redirect_to destinations_path, notice: "冒険記録を保存しました"
+      redirect_to walking_destination_path(@destination), notice: "冒険を開始します！"
     else
       flash.now[:alert] = "保存に失敗しました: #{@destination.errors.full_messages.to_sentence}"
       @destinations = current_user.destinations
@@ -23,52 +23,65 @@ class DestinationsController < ApplicationController
   def show
   end
 
-  def edit
-  end
-
-  def update
-    if @destination.update(destination_params)
-      redirect_to @destination, notice: "更新に成功しました"
-    else
-      flash.now[:alert] = "更新に失敗しました: #{@destination.errors.full_messages.to_sentence}"
-      render :edit
-    end
-  end
-
   def destroy
-    if @destination
-      @destination.destroy
-      redirect_to destinations_path, notice: "あなたの行き先リストの経路を削除しました"
-    else
-      redirect_to destinations_path, alert: "指定された経路は見つかりませんでした"
+    @destination.destroy
+    redirect_to destinations_path, notice: "冒険記録を削除しました"
+  end
+
+  # 歩行中GPS追跡画面
+  def walking
+    if @destination.walked_at.present?
+      redirect_to destinations_path, alert: "この冒険は完了済みです"
     end
   end
 
-  # 「歩いた」ボタン押下時の処理（経験値付与とランキング更新）
   def complete_walk
-    if @destination.walked_at.nil?
-      @destination.walked_at = Time.current
-      distance_km = @destination.distance.to_s.gsub(",", "").gsub(" km", "").to_f
-      distance_in_meters = distance_km * 1000.0
-
-      exp = (distance_in_meters / 100.0 * 10).floor # 100mあたり10EXP
-
-      user_monster = current_user.user_monster
-      if user_monster
-        user_monster.experience += exp
-        user_monster.recalculate_level!  # レベル再計算
-        user_monster.save!
-      end
-
-      @destination.save!
-
-      # ランキングの重複発生防止のため全ランキングを再生成
-      UserRankingRealtimeUpdater.refresh_all_periods
-
-      redirect_back fallback_location: destination_path(@destination), notice: "お疲れ様！モンスターが#{exp}EXPを獲得して、成長したよ！"
-    else
-      redirect_to destination_path(@destination), alert: "この経路はすでに完了しています。"
+    if @destination.walked_at.present?
+      return render json: { error: "この経路はすでに完了しています。" }, status: :unprocessable_entity
     end
+
+    # GPS座標検証（サーバー側）
+    current_lat = params[:current_lat].to_f
+    current_lng = params[:current_lng].to_f
+
+    if current_lat != 0.0 && current_lng != 0.0
+      distance_to_goal_km = Geocoder::Calculations.distance_between(
+        [current_lat, current_lng],
+        [@destination.latitude, @destination.longitude]
+      )
+      distance_to_goal_m = distance_to_goal_km * 1000
+
+      if distance_to_goal_m > 50
+        return render json: {
+          error: "目的地に到達していません（目的地まであと#{distance_to_goal_m.round}m）"
+        }, status: :unprocessable_entity
+      end
+    end
+
+    # EXP計算（JS側で計測した実歩行距離を使用）
+    total_distance_m = params[:total_distance_m].to_f
+    exp = (total_distance_m / 100.0 * 10).floor
+
+    user_monster = current_user.user_monster
+    if user_monster
+      user_monster.experience += exp
+      user_monster.recalculate_level!
+      user_monster.save!
+    end
+
+    @destination.walked_at = Time.current
+    @destination.distance = "#{(total_distance_m / 1000.0).round(2)} km"
+    @destination.steps = (total_distance_m / 0.7).round
+    @destination.save!
+
+    UserRankingRealtimeUpdater.refresh_all_periods
+
+    render json: {
+      success: true,
+      exp: exp,
+      level: user_monster&.level,
+      message: "お疲れ様！モンスターが#{exp}EXPを獲得したよ！"
+    }
   end
 
   private
@@ -81,6 +94,6 @@ class DestinationsController < ApplicationController
   end
 
   def destination_params
-    params.require(:destination).permit(:start, :end, :distance, :duration, :steps)
+    params.require(:destination).permit(:start, :end, :latitude, :longitude, :address)
   end
 end
