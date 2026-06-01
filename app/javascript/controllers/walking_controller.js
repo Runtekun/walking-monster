@@ -95,6 +95,10 @@ export default class extends Controller {
     }
     this.map.panTo([lat, lng])
 
+    // 初回GPS取得後にローディング表示を消す
+    const loading = document.getElementById('gps-loading')
+    if (loading) loading.remove()
+
     // 移動距離を積算（2m以上の移動のみ加算してGPS誤差を除外）
     if (this.lastLat !== null) {
       const moved = this.haversineDistance(this.lastLat, this.lastLng, lat, lng)

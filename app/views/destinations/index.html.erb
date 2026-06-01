@@ -38,6 +38,11 @@
         </div>
       <% end %>
 
+      <!-- GPS取得中インジケーター -->
+      <div id="gps-loading-index" class="bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg p-2 mb-4 text-sm text-center animate-pulse">
+        📡 現在地を取得中...
+      </div>
+
       <!-- スマホ以外への警告 -->
       <div id="no-gps-warning" class="hidden bg-red-100 border border-red-300 text-red-700 rounded-lg p-3 mb-4 text-sm text-center">
         ⚠️ GPS機能はスマートフォンでご利用ください
@@ -138,6 +143,9 @@
           const lat = pos.coords.latitude
           const lng = pos.coords.longitude
           myLat = lat; myLng = lng
+          // ローディング表示を消す
+          const loading = document.getElementById('gps-loading-index')
+          if (loading) loading.remove()
           // 初回のみ地図を現在地に移動
           if (!currentMarker) {
             map.setView([lat, lng], 16)
@@ -154,6 +162,8 @@
           }
         },
         () => {
+          const loading = document.getElementById('gps-loading-index')
+          if (loading) loading.remove()
           document.getElementById("no-gps-warning").classList.remove("hidden")
         },
         { enableHighAccuracy: true, maximumAge: 5000 }

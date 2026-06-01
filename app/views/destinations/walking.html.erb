@@ -12,6 +12,7 @@
 
 <div class="relative overflow-hidden bg-[#1a1a2e]"
      style="height: 100dvh; width: 100vw;"
+     data-turbo-cache="false"
      data-controller="walking"
      data-walking-destination-lat-value="<%= @destination.latitude %>"
      data-walking-destination-lng-value="<%= @destination.longitude %>"
@@ -56,6 +57,7 @@
         <p class="text-white font-bold leading-none mt-1"
            style="font-size: 2rem;"
            data-walking-target="distance">--</p>
+        <p id="gps-loading" class="text-yellow-400 text-xs mt-1 animate-pulse">📡 GPS取得中...</p>
       </div>
     </div>
   </div>
