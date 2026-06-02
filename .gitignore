@@ -43,3 +43,9 @@
 /vendor/bundle
 
 /.env
+
+# Claude Code / Superpowers（非公開設定）
+/.claude
+/.superpowers
+/CLAUDE.md
+/docs/superpowers

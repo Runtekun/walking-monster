@@ -8,7 +8,50 @@
     <%= csp_meta_tag %>
 
     <%= yield :head %>
-    <%= yield :google_maps %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+      /* Leafletカスタムアイコン: 白ボックス除去 */
+      .leaflet-div-icon { background: none !important; border: none !important; }
+      /* 地図タイルにRPG風セピアフィルター */
+      .leaflet-tile-pane { filter: sepia(0.35) saturate(1.3) hue-rotate(5deg) contrast(1.05); }
+      /* 現在地ボタン（白い四角・地図アプリ標準スタイル） */
+      .locate-control-btn {
+        width: 34px; height: 34px;
+        background: white;
+        border: none;
+        border-radius: 4px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+        font-size: 18px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s;
+      }
+      .locate-control-btn:hover { background: #f4f4f4; }
+      /* ⚔️ 青グロー（現在地ラベル） */
+      .hero-glow {
+        font-size: 28px;
+        text-align: center;
+        line-height: 1.2;
+        filter: drop-shadow(0 0 6px #60a5fa) drop-shadow(0 0 12px #3b82f6);
+        animation: hero-pulse 2s ease-in-out infinite;
+      }
+      @keyframes hero-pulse {
+        0%, 100% { filter: drop-shadow(0 0 6px #60a5fa) drop-shadow(0 0 12px #3b82f6); }
+        50%       { filter: drop-shadow(0 0 10px #93c5fd) drop-shadow(0 0 20px #60a5fa); }
+      }
+      /* 🏰 ゴールドglow（目的地ラベル） */
+      .goal-glow {
+        font-size: 38px;
+        text-align: center;
+        line-height: 1.1;
+        filter: drop-shadow(0 0 8px rgba(251,191,36,0.9)) drop-shadow(0 0 16px rgba(251,191,36,0.5));
+        animation: goal-pulse 2s ease-in-out infinite;
+      }
+      @keyframes goal-pulse {
+        0%, 100% { filter: drop-shadow(0 0 8px rgba(251,191,36,0.7)) drop-shadow(0 0 16px rgba(251,191,36,0.3)); }
+        50%       { filter: drop-shadow(0 0 12px rgba(251,191,36,0.95)) drop-shadow(0 0 24px rgba(251,191,36,0.6)); }
+      }
+    </style>
 
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icon.png" type="image/png">

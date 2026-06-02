@@ -27,9 +27,10 @@ Rails.application.routes.draw do
     resources :comments, only: %i[create edit destroy], shallow: true
   end
 
-  resources :destinations, only: %i[index create show edit update destroy] do
+  resources :destinations, only: %i[index create show destroy] do
     member do
       post :complete_walk
+      get :walking
     end
   end
 

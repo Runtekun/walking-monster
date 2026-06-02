@@ -1,146 +1,110 @@
-<!-- 背景全体 -->
 <div class="w-full min-h-screen relative"
      style="background-image: url(<%= asset_path('destinations-bg.jpg') %>);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;">
-
-  <!-- 背景のオーバーレイ -->
   <div class="absolute inset-0 z-0"></div>
 
-  <!-- メインコンテナ -->
-  <div class="relative z-10 flex justify-center items-start pt-10 pb-16 min-h-screen">
-    <div class="w-full max-w-3xl bg-white bg-opacity-90 rounded-xl shadow-xl px-6 py-10 font-[PixelMplus10]">
+  <div class="relative z-10 flex justify-center items-start pt-6 pb-16 min-h-screen">
+    <div class="w-full max-w-3xl bg-white bg-opacity-90 rounded-xl shadow-xl px-6 py-8 font-[PixelMplus10]">
 
-      <!-- ヘッダー -->
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-[#3a1e00]">🗺️ 行き先を決めよう！</h1>
-        <p class="text-sm text-[#5f4b32] mt-1">モンスターと一緒に冒険の旅に出かけよう！</p>
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-[#3a1e00]">🗺️ 冒険に出かけよう！</h1>
+        <p class="text-sm text-[#5f4b32] mt-1">目的地をタップまたは検索して「出発する」を押してね</p>
       </div>
 
-      <!-- ステータスパネル -->
-      <div class="flex items-center justify-between bg-[#fff4d1] border-2 border-yellow-300 rounded-lg p-4 shadow-md mb-6">
-        <!-- 左側：画像とレベル -->
-        <div class="flex items-center gap-4">
-          <!-- モンスター画像（進化段階に応じて） -->
-          <% 
-            if @user_monster.level >= @species.evolution_level_2
-              image_to_display = @species.image_3
-            elsif @user_monster.level >= @species.evolution_level_1
-              image_to_display = @species.image_2
-            else
-              image_to_display = @species.image_1
-            end
+      <!-- モンスターステータス -->
+      <% if @user_monster %>
+        <div class="flex items-center gap-4 bg-[#fff4d1] border-2 border-yellow-300 rounded-lg p-4 shadow-md mb-6">
+          <%
+            image_to_display = @species&.image_for_level(@user_monster.level) rescue nil
           %>
-          <% if image_to_display.present? %>
+          <% if image_to_display&.present? %>
             <%= image_tag image_to_display.url, class: "w-14 h-14 object-contain" %>
           <% else %>
-            <%= image_tag "/fallback_monster.png", class: "w-14 h-14 object-contain" %>
+            <div class="w-14 h-14 flex items-center justify-center text-4xl">🐾</div>
           <% end %>
-
           <div>
             <p class="text-lg font-bold text-[#4b3300]">Lv<%= @user_monster.level %></p>
             <div class="w-40 bg-yellow-200 h-3 rounded-full overflow-hidden">
-              <% percent = ((@user_monster.experience.to_f / @user_monster.next_level_experience) * 100).floor rescue 0 %>
+              <% percent = ((@user_monster.experience.to_f / [@user_monster.next_level_experience, 1].max) * 100).floor %>
               <div class="bg-green-500 h-full" style="width: <%= percent %>%"></div>
             </div>
-            <p class="text-xs text-gray-700 mt-1">
-              <%= @user_monster.experience %> / <%= @user_monster.next_level_experience %> XP
-            </p>
+            <p class="text-xs text-gray-700 mt-1"><%= @user_monster.experience %> / <%= @user_monster.next_level_experience %> XP</p>
+          </div>
+          <div class="ml-auto text-right text-sm text-gray-600">
+            <p>冒険履歴：<strong><%= current_user.total_adventure_count %>回</strong></p>
           </div>
         </div>
+      <% end %>
 
-        <!-- 右側：冒険履歴 -->
-        <div class="text-right text-sm text-gray-600">
-          <p>冒険履歴：<strong><%= current_user.total_adventure_count %>回</strong></p>
-        </div>
+      <!-- GPS取得中インジケーター -->
+      <div id="gps-loading-index" class="bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg p-2 mb-4 text-sm text-center animate-pulse">
+        📡 現在地を取得中...
       </div>
 
-      <!-- 地図中心地設定 -->
-      <div class="bg-white border border-yellow-300 p-4 rounded-xl shadow mb-6 space-y-2">
-        <label for="address" class="text-sm font-bold text-[#3e2c00]">🏰 地図の中心を設定（例：東京駅）</label>
+      <!-- スマホ以外への警告 -->
+      <div id="no-gps-warning" class="hidden bg-red-100 border border-red-300 text-red-700 rounded-lg p-3 mb-4 text-sm text-center">
+        ⚠️ GPS機能はスマートフォンでご利用ください
+      </div>
+
+      <!-- 住所検索 -->
+      <div class="bg-white border border-yellow-300 p-4 rounded-xl shadow mb-4">
+        <label class="text-sm font-bold text-[#3e2c00] block mb-2">🔍 目的地を検索</label>
         <div class="flex gap-2">
-          <input id="address" type="text" placeholder="例：東京駅"
-                 class="flex-1 px-4 py-2 border rounded-lg border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 bg-yellow-50" />
-          <button onclick="codeAddress()"
+          <input id="address-search" type="text" placeholder="例：東京駅、上野公園"
+                 class="flex-1 px-4 py-2 border rounded-lg border-yellow-400 bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-300" />
+          <button onclick="searchAddress()"
                   class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-lg shadow">
             検索
           </button>
         </div>
+        <p class="text-xs text-gray-500 mt-1">または地図をタップして目的地を設定</p>
       </div>
 
-      <!-- 距離制限バナー -->
-      <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-lg px-4 py-3 mb-6 text-sm flex items-center shadow-sm">
-        <svg class="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M8.257 3.099c.366-.446.994-.553 1.44-.187l.094.083 6 6c.38.38.44.97.143 1.414l-.083.094-6 6c-.446.366-1.074.259-1.44-.187l-.083-.094-6-6a1 1 0 01-.083-1.32l.083-.094 6-6z" clip-rule="evenodd" />
-        </svg>
-        冒険の記録は<strong class="mx-1">最大15km</strong>まで保存できます。それ以上の距離は登録されません。
-      </div>
-
-      <!-- 出発地・目的地 -->
-      <div class="grid sm:grid-cols-2 gap-4 bg-white p-4 border border-yellow-300 rounded-xl shadow mb-6">
-        <div>
-          <label for="start" class="block text-sm font-bold text-[#3e2c00]">🚶 出発地</label>
-          <input id="start" type="text" placeholder="例：自宅・駅"
-                 class="w-full px-4 py-2 border rounded-lg border-yellow-400 bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-300" />
-        </div>
-        <div>
-          <label for="end" class="block text-sm font-bold text-[#3e2c00]">🎯 目的地</label>
-          <input id="end" type="text" placeholder="例：〇〇公園・カフェ"
-                 class="w-full px-4 py-2 border rounded-lg border-yellow-400 bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-300" />
-        </div>
-      </div>
-
-      <!-- 経路表示 -->
-      <div class="mb-6">
-        <button onclick="getRoute()"
-                class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-xl text-lg transition">
-          🌟 行き先を決定する
-        </button>
-      </div>
-
-      <!-- マップ -->
+      <!-- Leaflet地図 -->
       <div class="rounded-lg overflow-hidden border-2 border-yellow-300 shadow-xl mb-4">
-        <div id="map" class="w-full h-[400px] bg-gray-200"></div>
+        <div id="map" class="w-full h-[350px]"></div>
       </div>
 
-      <!-- 経路情報 -->
-      <div id="route-info" class="text-center font-bold text-[#3e2c00] mb-4 text-base"></div>
+      <!-- 目的地情報 -->
+      <div id="destination-info" class="hidden text-center font-bold text-[#3e2c00] mb-4 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+        <p id="destination-address" class="text-sm"></p>
+      </div>
 
-      <!-- 保存フォーム -->
-      <%= form_with url: destinations_path, method: :post do %>
-        <%= hidden_field_tag 'destination[start]', nil, id: 'hidden_start' %>
+      <!-- 出発フォーム -->
+      <%= form_with url: destinations_path, method: :post, id: "departure-form" do %>
+        <%= hidden_field_tag 'destination[start]', '現在地', id: 'hidden_start' %>
         <%= hidden_field_tag 'destination[end]', nil, id: 'hidden_end' %>
-        <%= hidden_field_tag 'destination[distance]', nil, id: 'hidden_distance' %>
-        <%= hidden_field_tag 'destination[duration]', nil, id: 'hidden_duration' %>
-        <%= hidden_field_tag 'destination[steps]', nil, id: 'hidden_steps' %>
+        <%= hidden_field_tag 'destination[latitude]', nil, id: 'hidden_lat' %>
+        <%= hidden_field_tag 'destination[longitude]', nil, id: 'hidden_lng' %>
+        <%= hidden_field_tag 'destination[address]', nil, id: 'hidden_address' %>
 
-        <%= submit_tag '✅ この冒険を記録する ', class: "w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow transition mb-10" %>
+        <button type="submit" id="departure-btn" disabled
+                class="w-full py-3 bg-gray-400 text-white font-bold rounded-lg shadow-xl text-lg transition cursor-not-allowed">
+          🚀 出発する（目的地を選んでください）
+        </button>
       <% end %>
 
-      <!-- 行き先リスト -->
-      <div class="bg-white border border-yellow-300 rounded-xl shadow p-4">
-        <h2 class="text-xl font-bold text-[#3e2c00] mb-4">📜 あなたの冒険リスト</h2>
+      <!-- 冒険履歴 -->
+      <div class="bg-white border border-yellow-300 rounded-xl shadow p-4 mt-6">
+        <h2 class="text-xl font-bold text-[#3e2c00] mb-4">📜 冒険の記録</h2>
         <% if @destinations.any? %>
-          <% @destinations.each do |d| %>
-            <% next if d.id.nil? %>
+          <% @destinations.order(created_at: :desc).each do |d| %>
             <div class="flex justify-between items-center bg-yellow-50 p-3 rounded-lg mb-2">
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-[#3e2c00] truncate"><%= d.start %> → <%= d.end %></p>
-                <p class="text-sm text-gray-600"><%= d.distance %></p>
+                <p class="text-sm text-gray-600"><%= d.distance.presence || "距離未記録" %></p>
               </div>
-
-                <% if d.walked_at.nil? %>
-                  <%= button_to "冒険完了として記録", complete_walk_destination_path(d),
-                      method: :post,
-                      data: { confirm: "この冒険を完了として記録しますか？" },
+              <div class="flex items-center gap-2 shrink-0 ml-4">
+                <% if d.walked_at.nil? && d.latitude.present? %>
+                  <%= link_to "続きを歩く", walking_destination_path(d),
                       class: "px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition" %>
-                <% else %>
-                  <span class="text-gray-500"> 完了済み</span>
+                <% elsif d.walked_at.present? %>
+                  <span class="text-gray-500 text-sm">✅ 完了</span>
                 <% end %>
-
-              <div class="ml-4 shrink-0 flex gap-2">
-                <%= link_to "詳細", destination_path(d), class: "px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition" %>
+                <%= link_to "詳細", destination_path(d),
+                    class: "px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition" %>
               </div>
             </div>
           <% end %>
@@ -153,154 +117,146 @@
   </div>
 </div>
 
-<!-- JavaScript -->
 <script>
-  // グローバル変数定義
-  if (typeof geocoder === "undefined") var geocoder;
-  if (typeof map === "undefined") var map;
-  if (typeof marker === "undefined") var marker;
-  if (typeof infoWindow === "undefined") var infoWindow;
-  if (typeof directionsService === "undefined") var directionsService;
-  if (typeof directionsRenderer === "undefined") var directionsRenderer;
+  let map, currentMarker, destinationMarker, myLat, myLng, watchId
 
-  // 初期化
-  function initMap() {
-    const mapElement = document.getElementById('map');
-    if (!mapElement) return;
-
-    const mapOptions = {
-      center: { lat: 35.6803997, lng: 139.7690174 },
-      zoom: 10
-    };
-
-    geocoder = new google.maps.Geocoder();
-    map = new google.maps.Map(mapElement, mapOptions);
-
-    marker = new google.maps.Marker({
-      position: mapOptions.center,
-      map: map,
-      draggable: true
-    });
-
-    infoWindow = new google.maps.InfoWindow();
-    infoWindow.setContent("東京駅");
-    infoWindow.open(map, marker);
-
-    marker.addListener('dragend', function () {
-      const pos = marker.getPosition();
-      geocoder.geocode({ location: pos }, function (results, status) {
-        if (status === 'OK' && results[0]) {
-          infoWindow.setContent(results[0].formatted_address);
-          infoWindow.open(map, marker);
-        } else {
-          infoWindow.setContent('住所を取得できませんでした');
-          infoWindow.open(map, marker);
-        }
-      });
-    });
-
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
-  }
-
-  // Turbo対応：キャッシュ前にマップ破棄
-  document.addEventListener("turbo:before-cache", () => {
-    if (marker) marker.setMap(null);
-    if (directionsRenderer) directionsRenderer.setMap(null);
-  });
-
-  // Turbo対応：ロード時マップ初期化
   document.addEventListener("turbo:load", () => {
-    if (typeof google !== 'undefined' && google.maps) {
-      initMap();
+    if (!document.getElementById("map")) return
+    initLeafletMap()
+  })
+
+  document.addEventListener("turbo:before-cache", () => {
+    if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null }
+    if (map) { map.remove(); map = null }
+    currentMarker = null // ← リセット必須：次回initで再生成させる
+    destinationMarker = null
+    myLat = undefined; myLng = undefined
+  })
+
+  function initLeafletMap() {
+    map = L.map("map").setView([35.681, 139.767], 14)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map)
+
+    if (navigator.geolocation) {
+      // walkingと同じwatchPositionで継続的に現在地を追跡
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude
+          const lng = pos.coords.longitude
+          myLat = lat; myLng = lng
+          // ローディング表示を消す
+          const loading = document.getElementById('gps-loading-index')
+          if (loading) loading.remove()
+          // 初回のみ地図を現在地に移動
+          if (!currentMarker) {
+            map.setView([lat, lng], 16)
+            const heroIcon = L.divIcon({
+              html: '<div class="hero-glow">⚔️</div>',
+              className: '',
+              iconSize: [36, 36],
+              iconAnchor: [18, 18]
+            })
+            currentMarker = L.marker([lat, lng], { icon: heroIcon }).addTo(map)
+          } else {
+            currentMarker.setLatLng([lat, lng])
+          }
+        },
+        () => {
+          const loading = document.getElementById('gps-loading-index')
+          if (loading) loading.remove()
+          document.getElementById("no-gps-warning").classList.remove("hidden")
+        },
+        { enableHighAccuracy: true, maximumAge: 5000 }
+      )
+    } else {
+      document.getElementById("no-gps-warning").classList.remove("hidden")
     }
-  });
 
-  // 住所検索→マップ表示
-  function codeAddress() {
-    let inputAddress = document.getElementById('address').value;
+    map.on("click", (e) => setDestinationMarker(e.latlng.lat, e.latlng.lng))
 
-    geocoder.geocode({ address: inputAddress }, function (results, status) {
-      if (status === 'OK') {
-        const location = results[0].geometry.location;
-
-        // 既存マーカー削除
-        if (marker) marker.setMap(null);
-
-        // 新しいマーカー設置（ドラッグ可能）
-        marker = new google.maps.Marker({
-          map: map,
-          position: location,
-          draggable: true
-        });
-
-        // 地図中心を住所へ
-        map.setCenter(location);
-
-        // 吹き出し設定
-        infoWindow.setContent(results[0].formatted_address);
-        infoWindow.open(map, marker);
-
-        // マーカー移動時に住所を再取得
-        marker.addListener('dragend', function () {
-          const newPos = marker.getPosition();
-          geocoder.geocode({ location: newPos }, function (results, status) {
-            if (status === 'OK' && results[0]) {
-              infoWindow.setContent(results[0].formatted_address);
-              infoWindow.open(map, marker);
-            } else {
-              infoWindow.setContent('住所を取得できませんでした');
-              infoWindow.open(map, marker);
-            }
-          });
-        });
-
-      } else {
-        alert('該当する結果がありませんでした：' + status);
+    // 現在地ボタン（L.Control で bottomleft）
+    const LocateControl = L.Control.extend({
+      options: { position: 'bottomleft' },
+      onAdd() {
+        const btn = L.DomUtil.create('button', 'locate-control-btn')
+        btn.innerHTML = '📍'
+        btn.title = '現在地に移動'
+        L.DomEvent.disableClickPropagation(btn)
+        btn.addEventListener('click', locateMe)
+        return btn
       }
-    });
+    })
+    new LocateControl().addTo(map)
   }
 
-  // 経路検索と表示
-  function getRoute() {
-    const start = document.getElementById("start").value;
-    const end = document.getElementById("end").value;
+  function setDestinationMarker(lat, lng) {
+    if (destinationMarker) map.removeLayer(destinationMarker)
+    const goalIcon = L.divIcon({
+      html: '<div class="goal-glow">🏰<br><span style="font-size:12px;font-weight:bold;color:#ffd700;text-shadow:0 1px 3px #000,0 0 6px #000">目的地</span></div>',
+      className: '',
+      iconSize: [60, 58],
+      iconAnchor: [30, 29]
+    })
+    destinationMarker = L.marker([lat, lng], { icon: goalIcon }).addTo(map)
 
-    const request = {
-      origin: start,
-      destination: end,
-      travelMode: google.maps.TravelMode.WALKING
-    };
+    document.getElementById("hidden_lat").value = lat
+    document.getElementById("hidden_lng").value = lng
 
-    directionsService.route(request, function (result, status) {
-      if (status === "OK") {
-        directionsRenderer.setDirections(result);
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, {
+      headers: { "Accept-Language": "ja" }
+    })
+      .then(r => r.json())
+      .then(data => {
+        const address = data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+        document.getElementById("hidden_end").value = address
+        document.getElementById("hidden_address").value = address
+        document.getElementById("destination-address").textContent = `🏁 目的地: ${address}`
+        document.getElementById("destination-info").classList.remove("hidden")
+        enableDepartureButton()
+      })
+      .catch(() => {
+        const fallback = `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+        document.getElementById("hidden_end").value = fallback
+        document.getElementById("hidden_address").value = fallback
+        enableDepartureButton()
+      })
+  }
 
-        const leg = result.routes[0].legs[0];
-        const distance = leg.distance.text;
-        const duration = leg.duration.text;
-        const distanceMeters = leg.distance.value;
-        const steps = Math.round(distanceMeters / 0.7);
+  function searchAddress() {
+    const query = document.getElementById("address-search").value
+    if (!query) return
 
-        document.getElementById("route-info").innerHTML =
-          `距離: ${distance}・所要時間: ${duration}・推定歩数: ${steps.toLocaleString()} 歩`;
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, {
+      headers: { "Accept-Language": "ja" }
+    })
+      .then(r => r.json())
+      .then(results => {
+        if (results.length === 0) { alert("住所が見つかりませんでした"); return }
+        const { lat, lon } = results[0]
+        map.setView([parseFloat(lat), parseFloat(lon)], 16)
+        setDestinationMarker(parseFloat(lat), parseFloat(lon))
+      })
+      .catch(() => alert("住所の検索に失敗しました"))
+  }
 
-        // hidden値に代入
-        document.getElementById("hidden_start").value = start;
-        document.getElementById("hidden_end").value = end;
-        document.getElementById("hidden_distance").value = distance;
-        document.getElementById("hidden_duration").value = duration;
-        document.getElementById("hidden_steps").value = steps;
-      } else {
-        alert("ルート検索に失敗しました: " + status);
-      }
-    });
+  function locateMe() {
+    if (myLat !== undefined) {
+      map.setView([myLat, myLng], 16)
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        myLat = pos.coords.latitude
+        myLng = pos.coords.longitude
+        map.setView([myLat, myLng], 16)
+      })
+    }
+  }
+
+  function enableDepartureButton() {
+    const btn = document.getElementById("departure-btn")
+    btn.disabled = false
+    btn.className = "w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-xl text-lg transition cursor-pointer"
+    btn.textContent = "🚀 出発する！"
   }
 </script>
-
-<!-- Google Maps 読み込み -->
-<% content_for :google_maps do %>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap">
-  </script>
-<% end %>

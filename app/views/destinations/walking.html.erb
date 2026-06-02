@@ -1,0 +1,97 @@
+<% content_for :head do %>
+  <style>
+    /* ヘッダー・フッター wrapper を全て非表示にして全画面地図 */
+    body > div > div { display: none !important; }
+    main { padding: 0 !important; height: 100dvh !important; overflow: hidden !important; }
+  </style>
+<% end %>
+
+<div class="relative overflow-hidden bg-[#1a1a2e]"
+     style="height: 100dvh; width: 100vw;"
+     data-turbo-cache="false"
+     data-controller="walking"
+     data-walking-destination-lat-value="<%= @destination.latitude %>"
+     data-walking-destination-lng-value="<%= @destination.longitude %>"
+     data-walking-complete-walk-url-value="<%= complete_walk_destination_path(@destination) %>">
+
+  <!-- 全画面Leaflet地図 -->
+  <div id="walking-map" class="absolute inset-0" style="z-index: 1;"></div>
+
+  <!-- 右上：モンスター＋距離カード -->
+  <% user_monster = current_user.user_monster %>
+  <% species = user_monster&.monster_species %>
+  <div class="absolute top-4 right-4 z-[1000]"
+       style="min-width: 160px; max-width: 200px;">
+    <div class="bg-black bg-opacity-75 backdrop-blur-sm rounded-2xl p-3 border border-white border-opacity-10 shadow-2xl">
+
+      <!-- モンスター情報 -->
+      <div class="flex items-center gap-2 mb-2">
+        <% image = species&.image_for_level(user_monster&.level || 1) %>
+        <% if image&.present? %>
+          <%= image_tag image.url, class: "w-10 h-10 object-contain drop-shadow-lg shrink-0" %>
+        <% else %>
+          <div class="w-10 h-10 flex items-center justify-center text-2xl shrink-0">🐲</div>
+        <% end %>
+        <div class="min-w-0">
+          <p class="text-white text-xs font-bold truncate leading-tight">
+            <%= species&.name_for_level(user_monster&.level || 1) %>
+          </p>
+          <p class="text-[#00ff88] text-xs">Lv.<%= user_monster&.level %></p>
+        </div>
+      </div>
+
+      <!-- EXPバー -->
+      <% exp_percent = user_monster ? [((user_monster.experience.to_f / [user_monster.next_level_experience, 1].max) * 100).floor, 100].min : 0 %>
+      <div class="bg-gray-700 rounded-full h-1.5 mb-3 overflow-hidden">
+        <div class="h-full rounded-full bg-gradient-to-r from-orange-500 to-yellow-400 transition-all"
+             style="width: <%= exp_percent %>%"></div>
+      </div>
+
+      <!-- 残り距離（大きく） -->
+      <div class="text-center">
+        <p class="text-gray-400 text-xs tracking-widest">目的地まで</p>
+        <p class="text-white font-bold leading-none mt-1"
+           style="font-size: 2rem;"
+           data-walking-target="distance">--</p>
+        <p id="gps-loading" class="text-yellow-400 text-xs mt-1 animate-pulse">📡 GPS取得中...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 100m接近アラート（下部中央） -->
+  <div data-walking-target="nearbyAlert"
+       class="hidden absolute bottom-24 left-1/2 -translate-x-1/2 z-[1000]">
+    <div class="bg-yellow-400 text-black font-bold text-center py-2 px-6 rounded-full shadow-2xl text-sm animate-pulse whitespace-nowrap">
+      🔥 目的地が近い！あと少し！
+    </div>
+  </div>
+
+  <!-- 左下：現在地ボタン（fixed でビューポート左下に固定） -->
+  <button data-action="click->walking#locateMe"
+          class="locate-control-btn"
+          style="position:fixed; bottom:24px; left:10px; z-index:9999;"
+          title="現在地に移動">📍</button>
+
+  <!-- 左上：戻るボタン -->
+  <div class="absolute top-4 left-4 z-[1000]">
+    <%= link_to destinations_path,
+        class: "flex items-center justify-center w-10 h-10 bg-black bg-opacity-60 backdrop-blur-sm rounded-full text-white shadow-lg hover:bg-opacity-80 transition" do %>
+      ←
+    <% end %>
+  </div>
+
+
+  <!-- 完了オーバーレイ -->
+  <div id="completion-overlay"
+       class="hidden absolute inset-0 bg-black bg-opacity-80 z-[2000] flex items-center justify-center">
+    <div class="bg-[#0f3460] border-2 border-[#00ff88] rounded-2xl p-8 text-center max-w-sm mx-4 shadow-2xl">
+      <div class="text-6xl mb-4">🎉</div>
+      <h2 class="text-[#00ff88] text-2xl font-bold mb-2">冒険完了！</h2>
+      <p class="text-yellow-400 text-3xl font-bold mb-2" id="completion-exp"></p>
+      <p class="text-white text-sm mb-6" id="completion-message"></p>
+      <%= link_to "ダッシュボードへ", authenticated_root_path,
+          class: "block w-full py-3 bg-[#00ff88] text-black font-bold rounded-lg hover:bg-green-400 transition" %>
+    </div>
+  </div>
+
+</div>

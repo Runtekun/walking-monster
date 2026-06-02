@@ -1,5 +1,8 @@
 Geocoder.configure(
-  lookup: :google,
-  use_https: true,
-  api_key: ENV["GOOGLE_MAP_API"]
+  lookup: :nominatim,
+  timeout: 5,
+  units: :km,
+  nominatim: {
+    host: "nominatim.openstreetmap.org"
+  }
 )

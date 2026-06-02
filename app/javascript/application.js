@@ -3,3 +3,6 @@ import "@hotwired/turbo-rails"
 import "./controllers"
 import "./confetti"
 import "./header"
+import L from "leaflet"
+
+window.L = L
