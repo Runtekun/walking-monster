@@ -27,25 +27,11 @@
         transition: background 0.15s;
       }
       .locate-control-btn:hover { background: #f4f4f4; }
-      /* ⚔️ 現在地popup（🏰と同じpopup方式） */
-      .hero-popup .leaflet-popup-content-wrapper {
-        background: rgba(10, 20, 50, 0.82);
-        border: 2px solid #60a5fa;
-        border-radius: 12px;
-        box-shadow: 0 0 14px rgba(96,165,250,0.7), 0 0 28px rgba(96,165,250,0.3);
-        color: white;
-        animation: hero-box-pulse 2s ease-in-out infinite;
-      }
-      .hero-popup .leaflet-popup-tip { background: rgba(10,20,50,0.82); }
-      @keyframes hero-box-pulse {
-        0%,100% { box-shadow: 0 0 14px rgba(96,165,250,0.7), 0 0 28px rgba(96,165,250,0.3); }
-        50%      { box-shadow: 0 0 20px rgba(96,165,250,0.9), 0 0 40px rgba(96,165,250,0.5); }
-      }
-      /* ⚔️ 青グロー（現在地） */
+      /* ⚔️ 青グロー（現在地ラベル） */
       .hero-glow {
         font-size: 28px;
         text-align: center;
-        line-height: 40px;
+        line-height: 1.2;
         filter: drop-shadow(0 0 6px #60a5fa) drop-shadow(0 0 12px #3b82f6);
         animation: hero-pulse 2s ease-in-out infinite;
       }
@@ -53,19 +39,17 @@
         0%, 100% { filter: drop-shadow(0 0 6px #60a5fa) drop-shadow(0 0 12px #3b82f6); }
         50%       { filter: drop-shadow(0 0 10px #93c5fd) drop-shadow(0 0 20px #60a5fa); }
       }
-      /* 🏰 ゴールドglow（目的地popup） */
-      .goal-popup .leaflet-popup-content-wrapper {
-        background: rgba(20,15,5,0.88);
-        border: 2px solid #fbbf24;
-        border-radius: 12px;
-        box-shadow: 0 0 14px rgba(251,191,36,0.7), 0 0 28px rgba(251,191,36,0.3);
-        color: white;
+      /* 🏰 ゴールドglow（目的地ラベル） */
+      .goal-glow {
+        font-size: 38px;
+        text-align: center;
+        line-height: 1.1;
+        filter: drop-shadow(0 0 8px rgba(251,191,36,0.9)) drop-shadow(0 0 16px rgba(251,191,36,0.5));
         animation: goal-pulse 2s ease-in-out infinite;
       }
-      .goal-popup .leaflet-popup-tip { background: rgba(20,15,5,0.88); }
       @keyframes goal-pulse {
-        0%, 100% { box-shadow: 0 0 14px rgba(251,191,36,0.7), 0 0 28px rgba(251,191,36,0.3); }
-        50%       { box-shadow: 0 0 20px rgba(251,191,36,0.9), 0 0 40px rgba(251,191,36,0.5); }
+        0%, 100% { filter: drop-shadow(0 0 8px rgba(251,191,36,0.7)) drop-shadow(0 0 16px rgba(251,191,36,0.3)); }
+        50%       { filter: drop-shadow(0 0 12px rgba(251,191,36,0.95)) drop-shadow(0 0 24px rgba(251,191,36,0.6)); }
       }
     </style>
 

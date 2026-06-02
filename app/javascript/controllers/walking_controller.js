@@ -36,21 +36,18 @@ export default class extends Controller {
     const destLng = this.destinationLngValue
 
     this.map = L.map("walking-map").setView([destLat, destLng], 15)
-    // OpenStreetMap標準: 日本語表示・見やすい
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map)
 
-    // 目的地マーカー（🏰 ゴールド光）
-    L.popup({
-      closeButton: false,
-      autoClose: false,
-      closeOnClick: false,
-      className: 'goal-popup'
+    // 目的地マーカー（🏰 ゴールドglow ラベル）
+    const goalIcon = L.divIcon({
+      html: '<div class="goal-glow">🏰<br><span style="font-size:12px;font-weight:bold;color:#ffd700;text-shadow:0 1px 3px #000,0 0 6px #000">目的地</span></div>',
+      className: '',
+      iconSize: [60, 58],
+      iconAnchor: [30, 29]
     })
-      .setLatLng([destLat, destLng])
-      .setContent('<div style="font-size:38px;text-align:center;line-height:1.1">🏰<br><span style="font-size:11px;font-weight:bold;color:#ffd700">目的地</span></div>')
-      .openOn(this.map)
+    L.marker([destLat, destLng], { icon: goalIcon }).addTo(this.map)
 
     // 目的地の50m範囲サークル
     L.circle([destLat, destLng], {
@@ -69,6 +66,13 @@ export default class extends Controller {
       return
     }
 
+    // キャッシュ済みGPS位置をすぐに表示（Turbo遷移直後でも即時反映）
+    navigator.geolocation.getCurrentPosition(
+      (pos) => this.updatePosition(pos),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 30000 }
+    )
+
     this.watchId = navigator.geolocation.watchPosition(
       (pos) => this.updatePosition(pos),
       (err) => console.error("GPS Error:", err),
@@ -80,20 +84,17 @@ export default class extends Controller {
     const lat = position.coords.latitude
     const lng = position.coords.longitude
 
-    // 現在地マーカー（🏰と同じpopup方式で確実に表示）
+    // 現在地マーカー（⚔️ 青glow ラベル）
     if (this.currentMarker) {
       this.currentMarker.setLatLng([lat, lng])
     } else {
-      this.currentMarker = L.popup({
-        closeButton: false,
-        autoClose: false,
-        closeOnClick: false,
-        className: 'hero-popup',
-        offset: [0, 10]
+      const heroIcon = L.divIcon({
+        html: '<div class="hero-glow">⚔️</div>',
+        className: '',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
       })
-        .setLatLng([lat, lng])
-        .setContent('<div class="hero-glow" style="font-size:28px;text-align:center;line-height:1.2">⚔️</div>')
-      this.currentMarker.addTo(this.map)
+      this.currentMarker = L.marker([lat, lng], { icon: heroIcon }).addTo(this.map)
     }
     this.map.panTo([lat, lng])
 

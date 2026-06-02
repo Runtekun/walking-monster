@@ -28,7 +28,7 @@ class DestinationsController < ApplicationController
     redirect_to destinations_path, notice: "冒険記録を削除しました"
   end
 
-  # 歩行中GPS追跡画面
+  # 歩行中GPS追跡のためのアクション
   def walking
     if @destination.walked_at.present?
       redirect_to destinations_path, alert: "この冒険は完了済みです"

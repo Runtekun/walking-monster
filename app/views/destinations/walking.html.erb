@@ -1,12 +1,8 @@
 <% content_for :head do %>
   <style>
-    /* ヘッダー・フッターを非表示にして全画面地図 */
-    body > div > header,
-    body > div > nav,
-    body > div > footer,
-    body > div > div:first-child,
-    body > div > div:last-child { display: none !important; }
-    main { padding: 0 !important; }
+    /* ヘッダー・フッター wrapper を全て非表示にして全画面地図 */
+    body > div > div { display: none !important; }
+    main { padding: 0 !important; height: 100dvh !important; overflow: hidden !important; }
   </style>
 <% end %>
 

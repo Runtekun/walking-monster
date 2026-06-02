@@ -152,16 +152,13 @@
           // 初回のみ地図を現在地に移動
           if (!currentMarker) {
             map.setView([lat, lng], 16)
-            currentMarker = L.popup({
-              closeButton: false,
-              autoClose: false,
-              closeOnClick: false,
-              className: 'hero-popup',
-              offset: [0, 10]
+            const heroIcon = L.divIcon({
+              html: '<div class="hero-glow">⚔️</div>',
+              className: '',
+              iconSize: [36, 36],
+              iconAnchor: [18, 18]
             })
-              .setLatLng([lat, lng])
-              .setContent('<div class="hero-glow" style="font-size:28px;text-align:center;line-height:1.2">⚔️</div>')
-            currentMarker.addTo(map)
+            currentMarker = L.marker([lat, lng], { icon: heroIcon }).addTo(map)
           } else {
             currentMarker.setLatLng([lat, lng])
           }
@@ -196,16 +193,13 @@
 
   function setDestinationMarker(lat, lng) {
     if (destinationMarker) map.removeLayer(destinationMarker)
-    // 🏰 目的地（walkingと同じゴールドglow popup）
-    destinationMarker = L.popup({
-      closeButton: false,
-      autoClose: false,
-      closeOnClick: false,
-      className: 'goal-popup'
+    const goalIcon = L.divIcon({
+      html: '<div class="goal-glow">🏰<br><span style="font-size:12px;font-weight:bold;color:#ffd700;text-shadow:0 1px 3px #000,0 0 6px #000">目的地</span></div>',
+      className: '',
+      iconSize: [60, 58],
+      iconAnchor: [30, 29]
     })
-      .setLatLng([lat, lng])
-      .setContent('<div style="font-size:38px;text-align:center;line-height:1.1">🏰<br><span style="font-size:11px;font-weight:bold;color:#ffd700">目的地</span></div>')
-      .openOn(map)
+    destinationMarker = L.marker([lat, lng], { icon: goalIcon }).addTo(map)
 
     document.getElementById("hidden_lat").value = lat
     document.getElementById("hidden_lng").value = lng
