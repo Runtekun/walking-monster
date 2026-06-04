@@ -4,5 +4,5 @@ class Post < ApplicationRecord
 
   has_many :comments, dependent: :destroy
   belongs_to :user
-  mount_uploader :post_image, PostImageUploader
+  has_one_attached :post_image
 end

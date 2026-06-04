@@ -27,8 +27,8 @@
       <!-- モンスター情報 -->
       <div class="flex items-center gap-2 mb-2">
         <% image = species&.image_for_level(user_monster&.level || 1) %>
-        <% if image&.present? %>
-          <%= image_tag image.url, class: "w-10 h-10 object-contain drop-shadow-lg shrink-0" %>
+        <% if image.present? %>
+          <%= image_tag url_for(image), class: "w-10 h-10 object-contain drop-shadow-lg shrink-0" %>
         <% else %>
           <div class="w-10 h-10 flex items-center justify-center text-2xl shrink-0">🐲</div>
         <% end %>

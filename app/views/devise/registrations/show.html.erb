@@ -15,7 +15,9 @@
         <tr>
           <th class="text-left px-4 py-2 font-semibold"><%= "アバター" %></th>
           <td class="px-4 py-2">
-            <%= image_tag current_user.avatar.url, class: 'rounded-full w-12 h-12' %>
+            <% if current_user.avatar.attached? %>
+              <%= image_tag url_for(current_user.avatar), class: 'rounded-full w-12 h-12' %>
+            <% end %>
           </td>
         </tr>
       </table>

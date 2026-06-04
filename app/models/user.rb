@@ -1,3 +1,5 @@
+require "open-uri"
+
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -13,7 +15,11 @@ class User < ApplicationRecord
   has_many :destinations, dependent: :destroy
   has_one :user_monster, dependent: :destroy
   has_many :user_rankings, dependent: :destroy
-  mount_uploader :avatar, AvatarUploader
+  has_one_attached :avatar
+
+  attr_accessor :avatar_url_from_oauth
+
+  after_create :attach_oauth_avatar
 
   def own?(object)
     id == object&.user_id
@@ -28,11 +34,25 @@ class User < ApplicationRecord
       user.email = auth.info.email
       user.password = Devise.friendly_token[0, 20]
       user.name = auth.info.name
-      user.remote_avatar_url = auth.info.image
+      user.avatar_url_from_oauth = auth.info.image
     end
   end
 
   def total_adventure_count
     destinations.where.not(walked_at: nil).count
+  end
+
+  private
+
+  def attach_oauth_avatar
+    return if avatar_url_from_oauth.blank?
+    uri = URI.parse(avatar_url_from_oauth)
+    avatar.attach(
+      io: uri.open,
+      filename: "avatar_#{id}.jpg",
+      content_type: "image/jpeg"
+    )
+  rescue => e
+    Rails.logger.warn "OAuth avatar attach failed: #{e.message}"
   end
 end

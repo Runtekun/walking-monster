@@ -4,7 +4,7 @@
 
 ### インフラ移行
 - [ ] Render → AWS 移行（EC2 / ECS + RDS + S3）
-- [ ] CarrierWave → ActiveStorage 移行（S3対応のため）
+- [x] CarrierWave → ActiveStorage 移行（S3対応のため）
 
 ## 予定
 
@@ -13,6 +13,9 @@
   - 50m自動完了、100m接近アラート
   - Google Maps API 不要に（Nominatim/OpenStreetMapに移行）
   - `feature/gps-walking` ブランチで実装済み
+
+### DB整理
+- [ ] `monster_species` テーブルのリファクタリング（`monster_stages` テーブルに分離、name_stage_1/2/3 と画像をステージ単位で管理）
 
 ### 機能追加
 - [ ] （追加予定の機能をここに記載）

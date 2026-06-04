@@ -10,7 +10,7 @@
           <% image_to_show = @species.image_for_level(@user_monster.level) %>
 
           <% if image_to_show.present? %>
-            <%= image_tag image_to_show.url, alt: "あなたのモンスター", class: "w-24 h-24 object-contain" %>
+            <%= image_tag url_for(image_to_show), alt: "あなたのモンスター", class: "w-24 h-24 object-contain" %>
           <% else %>
             <div class="w-24 h-24 flex items-center justify-center bg-gray-200 text-gray-500 text-sm rounded">
               未選択
