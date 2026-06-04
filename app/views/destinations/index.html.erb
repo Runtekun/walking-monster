@@ -16,11 +16,9 @@
       <!-- モンスターステータス -->
       <% if @user_monster %>
         <div class="flex items-center gap-4 bg-[#fff4d1] border-2 border-yellow-300 rounded-lg p-4 shadow-md mb-6">
-          <%
-            image_to_display = @species&.image_for_level(@user_monster.level) rescue nil
-          %>
-          <% if image_to_display&.present? %>
-            <%= image_tag image_to_display.url, class: "w-14 h-14 object-contain" %>
+          <% image_to_display = @species&.image_for_level(@user_monster.level) %>
+          <% if image_to_display.present? %>
+            <%= image_tag url_for(image_to_display), class: "w-14 h-14 object-contain" %>
           <% else %>
             <div class="w-14 h-14 flex items-center justify-center text-4xl">🐾</div>
           <% end %>

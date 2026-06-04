@@ -48,7 +48,7 @@
                 <% image_to_show = user_monster.monster_species.image_for_level(user_monster.level) %>
                 <div class="flex items-center gap-2">
                   <% if image_to_show.present? %>
-                    <%= image_tag image_to_show.url, class: "w-10 h-10 rounded-full border" %>
+                    <%= image_tag url_for(image_to_show), class: "w-10 h-10 rounded-full border" %>
                   <% else %>
                     <div class="w-10 h-10 bg-gray-200 rounded-full border flex items-center justify-center text-xs text-gray-400">
                       No Image

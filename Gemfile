@@ -67,7 +67,7 @@ end
 gem "tailwindcss-rails"
 gem "tailwindcss-ruby", "3.4.17"
 gem "devise"
-gem "carrierwave"
+gem "aws-sdk-s3", require: false
 gem "dotenv-rails"             # APIキーを環境変数化
 gem "gon"                       # コントローラーで定義したインスタンス変数をJavaScript内で使用出来るようにする。
 gem "geocoder"                     # 住所から緯度経度を算出する。

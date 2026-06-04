@@ -5,19 +5,9 @@
       <h2 class="text-2xl font-bold text-black mb-4 text-center">あなたのモンスター</h2>
 
       <!-- モンスター画像表示 -->
-      <% 
-      # 進化段階に基づいて画像を選択
-      if @user_monster.level >= @species.evolution_level_2
-        image_to_display = @species.image_3
-      elsif @user_monster.level >= @species.evolution_level_1
-        image_to_display = @species.image_2
-      else
-        image_to_display = @species.image_1
-      end
-    %>
-      
+      <% image_to_display = @species.image_for_level(@user_monster.level) %>
       <% if image_to_display.present? %>
-        <%= image_tag image_to_display.url, class: "mx-auto w-48 h-48" %>
+        <%= image_tag url_for(image_to_display), class: "mx-auto w-48 h-48" %>
       <% else %>
         <p class="text-center text-white">画像が見つかりません</p>
       <% end %>

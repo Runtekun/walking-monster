@@ -7,8 +7,9 @@
             <%= radio_button_tag :monster_species_id, species.id, false, class: "mb-3 scale-125" %>
 
             <div class="w-full h-36 flex items-center justify-center mb-3">
-              <% if species.image_1.url.present? %>
-                <%= image_tag species.image_1.url, class: "object-contain max-h-full max-w-full" %>
+              <% first_image = species.images.order(:id).first %>
+              <% if first_image.present? %>
+                <%= image_tag url_for(first_image), class: "object-contain max-h-full max-w-full" %>
               <% else %>
                 <span class="text-gray-500">No Image</span>
               <% end %>

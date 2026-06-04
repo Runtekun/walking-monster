@@ -5,7 +5,11 @@
 <div class="border border-gray-300 rounded-lg p-4 max-w-2xl w-full">
   <div class="flex items-start gap-4 mt-4">
     <div class="w-full md:w-1/4">
-      <%= image_tag @post.post_image_url, class: "w-full h-auto rounded-t-lg" %>
+      <% if @post.post_image.attached? %>
+        <%= image_tag url_for(@post.post_image), class: "w-full h-auto rounded-t-lg" %>
+      <% else %>
+        <%= image_tag asset_path("post_placeholder.png"), class: "w-full h-auto rounded-t-lg" %>
+      <% end %>
     </div>
 
     <div class="w-2/3">
